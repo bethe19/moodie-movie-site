@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Moodie</title>
+    <link rel="stylesheet" href="./css/style.css" />
+  </head>
+  <body class="dark">
+    <header>
+      <!-- Navbar -->
+      <nav id="navbar">
+        <div class="containernav nav-container">
+          <a href="./index.html" class="logo">Moodie</a>
+
+          <ul class="nav-links">
+            <li><a href="./list.html">Movies</a></li>
+            <li><a href="./list.html">Shows</a></li>
+            <li class="dropdown">
+              <a href="./genre.html">Genre</a>
+              <ul class="dropdown-menu">
+                <li><a href="./genre.html#action">Action</a></li>
+                <li><a href="./genre.html#comedy">Comedy</a></li>
+                <li><a href="./genre.html#drama">Drama</a></li>
+                <li><a href="./genre.html#romance">Romance</a></li>
+              </ul>
+            </li>
+            <li class="dropdown">
+              <a href="./mood.html">Mood</a>
+              <ul class="dropdown-menu">
+                <li><a href="./mood.html#uplifting">Uplifting</a></li>
+                <li><a href="./mood.html#melancholic">Melancholic</a></li>
+                <li><a href="./mood.html#sad">Sad</a></li>
+                <li><a href="./mood.html#heartbroken">Heartbroken</a></li>
+              </ul>
+            </li>
+          </ul>
+
+          <div class="st">
+            <div class="scontainer">
+              <input checked="" class="checkbox" type="checkbox" />
+              <div class="mainbox">
+                <form action="./search.html" method="GET">
+                  <div class="iconContainer">
+                    <svg
+                      viewBox="0 0 512 512"
+                      height="1em"
+                      xmlns="http://www.w3.org/2000/svg"
+                      class="search_icon"
+                    >
+                      <path
+                        d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z"
+                      ></path>
+                    </svg>
+                  </div>
+                  <input class="search_input" placeholder="search" type="text" name="q" />
+                </form>
+              </div>
+            </div>
+
+            <div class="theme-toggle" onclick="toggleTheme()">
+              <span class="icon"><i class="fas fa-moon">🌙</i></span>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="main">
+      <section class="search">
+        <h1 class="headline">Best Match Your Mood "what ever you searched"</h1>
+        <div class="mood-input-box" style="justify-content: center">
+          <input
+            type="text"
+            id="mood-input"
+            placeholder="Type your mood . . . eg. I feel sad today"
+          />
+          <button id="mood-submit">🙂</button>
+        </div>
+      </section>
+      <section class="result">
+        <div class="container">
+          <div
+            class="movie-grid"
+            id="movie-grid"
+            style="
+              display: flex;
+              flex-wrap: wrap;
+              justify-content: center;
+              gap: 1rem;
+            "
+          >
+            <!-- Card 1 -->
+            <div class="movie-card">
+              <div class="poster">
+                <img
+                  src="https://m.media-amazon.com/images/I/71niXI3lxlL._AC_SY679_.jpg"
+                  alt="Inception Poster"
+                />
+                <div class="description-overlay">
+                  <div class="movie-info">
+                    <div class="movie-title">Inception</div>
+                    <div class="meta">
+                      <span class="year">2010</span>
+                      <span class="rating">⭐ 8.8</span>
+                    </div>
+                    <div class="description">
+                      Dom Cobb is a thief who steals corporate secrets through
+                      dream-sharing technology.
+                    </div>
+                    <a href="#" class="see-more"
+                      >See More <span class="arrow">→</span></a
+                    >
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="movie-card">
+              <div class="poster">
+                <img
+                  src="https://m.media-amazon.com/images/I/71niXI3lxlL._AC_SY679_.jpg"
+                  alt="Inception Poster"
+                />
+                <div class="description-overlay">
+                  <div class="movie-info">
+                    <div class="movie-title">Inception</div>
+                    <div class="meta">
+                      <span class="year">2010</span>
+                      <span class="rating">⭐ 8.8</span>
+                    </div>
+                    <div class="description">
+                      Dom Cobb is a thief who steals corporate secrets through
+                      dream-sharing technology.
+                    </div>
+                    <a href="#" class="see-more"
+                      >See More <span class="arrow">→</span></a
+                    >
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="movie-card">
+              <div class="poster">
+                <img
+                  src="https://m.media-amazon.com/images/I/71niXI3lxlL._AC_SY679_.jpg"
+                  alt="Inception Poster"
+                />
+                <div class="description-overlay">
+                  <div class="movie-info">
+                    <div class="movie-title">Inception</div>
+                    <div class="meta">
+                      <span class="year">2010</span>
+                      <span class="rating">⭐ 8.8</span>
+                    </div>
+                    <div class="description">
+                      Dom Cobb is a thief who steals corporate secrets through
+                      dream-sharing technology.
+                    </div>
+                    <a href="#" class="see-more"
+                      >See More <span class="arrow">→</span></a
+                    >
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="movie-card">
+              <div class="poster">
+                <img
+                  src="https://m.media-amazon.com/images/I/71niXI3lxlL._AC_SY679_.jpg"
+                  alt="Inception Poster"
+                />
+                <div class="description-overlay">
+                  <div class="movie-info">
+                    <div class="movie-title">Inception</div>
+                    <div class="meta">
+                      <span class="year">2010</span>
+                      <span class="rating">⭐ 8.8</span>
+                    </div>
+                    <div class="description">
+                      Dom Cobb is a thief who steals corporate secrets through
+                      dream-sharing technology.
+                    </div>
+                    <a href="#" class="see-more"
+                      >See More <span class="arrow">→</span></a
+                    >
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div
+            class="carousel-controls"
+            style="
+              justify-content: center;
+              align-items: center;
+              flex-direction: column;
+              margin-top: 1rem;
+            "
+          >
+            <div class="arrows">
+              <button class="carousel-btn left" data-target="movie-grid">
+                ←
+              </button>
+              <button class="carousel-btn right" data-target="movie-grid">
+                →
+              </button>
+            </div>
+            <h3>3 of 9 pages</h3>
+          </div>
+        </div>
+      </section>
+    </main>
+    <script src="../scripts/script.js"></script>
+  </body>
+</html>

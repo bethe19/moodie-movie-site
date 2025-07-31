@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"> -->
+    <title>Moodie</title>
+    <link rel="stylesheet" href="./css/style.css" />
+  </head>
+  <body class="dark">
+    <header>
+      <!-- Navbar -->
+      <nav id="navbar">
+        <div class="containernav nav-container">
+          <a href="./index.html" class="logo">Moodie</a>
+
+          <ul class="nav-links">
+            <li><a href="./list.html">Movies</a></li>
+            <li><a href="./list.html">Shows</a></li>
+            <li class="dropdown">
+              <a href="./genre.html">Genre</a>
+              <ul class="dropdown-menu">
+                <li><a href="./genre.html#action">Action</a></li>
+                <li><a href="./genre.html#comedy">Comedy</a></li>
+                <li><a href="./genre.html#drama">Drama</a></li>
+                <li><a href="./genre.html#romance">Romance</a></li>
+              </ul>
+            </li>
+            <li class="dropdown">
+              <a href="./mood.html">Mood</a>
+              <ul class="dropdown-menu">
+                <li><a href="./mood.html#uplifting">Uplifting</a></li>
+                <li><a href="./mood.html#melancholic">Melancholic</a></li>
+                <li><a href="./mood.html#sad">Sad</a></li>
+                <li><a href="./mood.html#heartbroken">Heartbroken</a></li>
+              </ul>
+            </li>
+          </ul>
+
+          <div class="st">
+            <div class="scontainer">
+              <input checked="" class="checkbox" type="checkbox" />
+              <div class="mainbox">
+                <form action="./search.html" method="GET">
+                  <div class="iconContainer">
+                    <svg
+                      viewBox="0 0 512 512"
+                      height="1em"
+                      xmlns="http://www.w3.org/2000/svg"
+                      class="search_icon"
+                    >
+                      <path
+                        d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z"
+                      ></path>
+                    </svg>
+                  </div>
+                  <input class="search_input" placeholder="search" type="text" name="q" />
+                </form>
+              </div>
+            </div>
+
+            <div class="theme-toggle" onclick="toggleTheme()">
+              <span class="icon"><i class="fas fa-moon">🌙</i></span>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+    <main class="main">
+      <section class="detail" style="color: white">
+        <div class="back">
+          <div class="containerr">
+            <div class="img">
+              <img
+                src="./assets/ff671aab-2a43-4b1d-966d-fab20e892d43.jpeg"
+                alt="name of movie"
+              />
+            </div>
+            <div class="texts" style="color: var(--text)">
+              <h1
+                class="rate"
+                style="
+                  border: 1px solid var(--accent);
+                  padding: 5px 1rem;
+                  border-radius: 30px;
+                  font-size: 1em;
+                  width: fit-content;
+                "
+              >
+                Rating : ⭐9.2
+              </h1>
+
+              <p class="typeofmovie">Tv Series</p>
+              <h1 class="title" style="font-size: 2.5em">Game of Thrones</h1>
+              <h2 class="subtitle">A song of Ice and FIre</h2>
+              <ul
+                class="casts"
+                style="display: flex; gap: 1rem; list-style: none"
+              >
+                <li>Ned Stark |</li>
+                <li>Ned Stark |</li>
+                <li>Ned Stark |</li>
+                <li>Ned Stark |</li>
+                <li>Ned Stark |</li>
+                <li>See full cast -></li>
+              </ul>
+              <p class="description">
+                In the sky above, Addam Velaryon could see the battle turning
+                into a rout below him. Two of the three enemy dragonriders were
+                dead, but he would have had no way of knowing that. He could
+                doubtless see the enemy dragons, however. Unchained, they were
+                kept beyond the town walls, free to fly and hunt as they would;
+                Silverwing and Vermithor oft coiled about one another in the
+                fields south of Tumbleton, whilst Tessarion slept and fed in
+                Prince Daeron’s camp to the west of the town, not a hundred
+                yards from his pavilion.
+              </p>
+              <div class="info">
+                <ul
+                  class="tags"
+                >
+                  <li
+                    class="taglist"
+                  >
+                    Fantasy
+                  </li>
+                  <li
+                    class="taglist"
+                  
+                  >
+                    Family
+                  </li>
+                  <li
+                    class="taglist"
+                    style="
+                      border: 1px solid var(--accent);
+                      padding: 3px 6px;
+                      border-radius: 20px;
+                    "
+                  >
+                    Betrayal
+                  </li>
+                  <li
+                    class="taglist"
+                    style="
+                      border: 1px solid var(--accent);
+                      padding: 3px 6px;
+                      border-radius: 20px;
+                    "
+                  >
+                    Honour
+                  </li>
+                </ul>
+                <div class="movieslide-detail">
+                  <a href="./index.html" class="btn-see-more"> <- Back to Home</a>
+                  <button class="btn-add">+</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+    <script src="./scripts/script.js"></script>
+  </body>
+</html>

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <title>Moodie</title>
+    <link rel="stylesheet" href="./css/style.css" />
+  </head>
+  <body class="dark">
+    <header>
+      <!-- Navbar -->
+      <nav id="navbar">
+        <div class="containernav nav-container">
+          <a href="./index.html" class="logo">Moodie</a>
+
+          <ul class="nav-links">
+            <li><a href="./list.html">Movies</a></li>
+            <li><a href="./list.html">Shows</a></li>
+            <li class="dropdown">
+              <a href="./genre.html">Genre</a>
+              <ul class="dropdown-menu">
+                <li><a href="./genre.html#action">Action</a></li>
+                <li><a href="./genre.html#comedy">Comedy</a></li>
+                <li><a href="./genre.html#drama">Drama</a></li>
+                <li><a href="./genre.html#romance">Romance</a></li>
+              </ul>
+            </li>
+            <li class="dropdown">
+              <a href="./mood.html">Mood</a>
+              <ul class="dropdown-menu">
+                <li><a href="./mood.html#uplifting">Uplifting</a></li>
+                <li><a href="./mood.html#melancholic">Melancholic</a></li>
+                <li><a href="./mood.html#sad">Sad</a></li>
+                <li><a href="./mood.html#heartbroken">Heartbroken</a></li>
+              </ul>
+            </li>
+          </ul>
+
+          <div class="st">
+            <div class="scontainer">
+              <input checked="" class="checkbox" type="checkbox" />
+              <div class="mainbox">
+                <form action="./search.html" method="GET">
+                  <div class="iconContainer">
+                    <svg
+                      viewBox="0 0 512 512"
+                      height="1em"
+                      xmlns="http://www.w3.org/2000/svg"
+                      class="search_icon"
+                    >
+                      <path
+                        d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z"
+                      ></path>
+                    </svg>
+                  </div>
+                  <input class="search_input" placeholder="search" type="text" name="q" />
+                </form>
+              </div>
+            </div>
+
+            <div class="theme-toggle" onclick="toggleTheme()">
+              <span class="icon"><i class="fas fa-moon"></i></span>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+    <main class="main">
+      <!-- <section id="hero">
+    <div class="overlay">
+      <div class="container hero-content">
+        <div class="trending-badge">> Trending Now</div>
+    
+        <div class="hero-text">
+          <h1 class="movie-title">The Karate Kid: The Kid Beyond</h1>
+          <p class="movie-description">
+            The man from the Chinese highlands brings his zeng to train the child he saw in his dream. He thought he is the next dragon.
+          </p>
+        </div>
+    
+        <div class="hero-actions group">
+          <div class="movieslide">
+            <a href="#" class="btn-see-more">See More →</a>
+            <button class="btn-add">+</button>
+          </div>
+          <div class="mood-input-box">
+            <input type="text" id="mood-input" placeholder="Type your mood . . . eg. I feel sad today">
+            <button id="mood-submit">🙂</button>
+          </div>
+        </div>
+    
+        <div class="hero-carousel-indicators">
+          <span class="dot active"></span>
+          <span class="dot"></span>
+          <span class="dot"></span>
+          <span class="dot"></span>
+        </div>
+      </div>
+  
+    </div>
+  </section> -->
+      <section id="hero">
+        <div class="over">
+          <div class="hero-overlay">
+            <div class="container hero-content">
+              <div class="trending-badge" id="category-badge">> Now Playing</div>
+              <div class="hero-textcontainer" id="hero-textcontainer"></div>
+              
+
+              <div class="hero-actions group">
+                <div class="movieslide">
+                  <a href="./moviedetail.html" class="btn-see-more">See More →</a>
+                  <button class="btn-add">+</button>
+                </div>
+                <div class="mood-input-box">
+                  <input
+                    type="text"
+                    id="mood-input"
+                    placeholder="Type your mood . . . eg. I feel sad today"
+                  />
+                  <button id="mood-submit">🙂</button>
+                </div>
+              </div>
+
+              <div class="hero-carousel-indicators">
+                <span class="dot active"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Popular Movies -->
+      <section id="popular-movies">
+        <div class="container">
+          <h2>Popular Movies</h2>
+          <div class="carousel-controls">
+            <button class="carousel-btn left" data-target="movie-grid">
+              ←
+            </button>
+            <button class="carousel-btn right" data-target="movie-grid">
+              →
+            </button>
+          </div>
+          <div class="popular movie-grid carousel" id="movie-grid">
+          </div>
+        </div>
+      </section>
+
+      <!-- Popular Actors -->
+      <section id="popular-actors">
+        <div class="container">
+          <h2>Popular Actors</h2>
+          <div class="carousel-controls">
+            <button class="carousel-btn left" data-target="actor-grid">
+              ←
+            </button>
+            <button class="carousel-btn right" data-target="actor-grid">
+              →
+            </button>
+          </div>
+          <div
+            class="popular-actors actor-grid carousel"
+            id="actor-grid carousel"
+            id="actor-grid"
+          >
+            <!-- Actor Card 1 -->
+
+            <!-- More actor cards... -->
+          </div>
+        </div>
+      </section>
+    </main>
+    <script src="./scripts/script.js"></script>
+  </body>
+</html>
