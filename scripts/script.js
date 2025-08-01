@@ -1,67 +1,72 @@
+// Constants
 const scrollAmount = 300;
-
-// Scroll carousel on button click
-document.querySelectorAll('.carousel-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const direction = btn.classList.contains('left') ? -1 : 1;
-    const targetId = btn.getAttribute('data-target');
-    const carousel = document.getElementById(targetId);
-
-    carousel.scrollBy({ left: scrollAmount * direction, behavior: 'smooth' });
-  });
-});
-
-// Theme toggler
-function toggleTheme() {
-  document.body.classList.toggle('light');
-  document.body.classList.toggle('dark');
-}
-
-// Debug print shortcut
-function print(x) {
-  console.log(x);
-}
-
-// Global state
-const global = {
-  currentPage: window.location.pathname,
-};
-
-// Highlight nav link based on current page
-function highlightActiveNavLink() {
-  const navLinks = document.querySelectorAll('.nav-links > li');
-  navLinks.forEach(link => {
-    const anchor = link.firstElementChild;
-    if (anchor.getAttribute('href') === global.currentPage) {
-      anchor.classList.add('active');
-    }
-  });
-}
-
-// Initialize all data fetching
-function init() {
-  getPopularMovies('movie/popular');
-  getPopularActors();
-  startHeroSlider(); // changed from loadNowPlaying()
-  highlightActiveNavLink();
-}
-
-
-// API setup
 const API = {
   apiKey: '3fd2be6f0c70a2a598f084ddfb75487c',
   apiUrl: 'https://api.themoviedb.org/3/',
 };
 
-// Truncate text helper
-function truncate(text, limit = 100) {
-  if (!text) return '';
-  return text.length > limit
-    ? text.slice(0, text.lastIndexOf(' ', limit)) + '...'
-    : text;
+// Global State
+const global = {
+  currentPage: window.location.pathname,
+};
+
+// Utility Functions
+function print(x) { console.log(x); }
+
+function truncate(str, maxLength = 100) {
+  if (!str) return '';
+  return str.length > maxLength ? str.slice(0, str.lastIndexOf(' ', maxLength)) + '...' : str;
 }
 
-// Fetch now playing movie for hero section
+function highlightActiveNavLink() {
+  document.querySelectorAll('.nav-links > li a').forEach(link => {
+    if (link.getAttribute('href') === global.currentPage) {
+      link.classList.add('active');
+    }
+  });
+}
+
+function toggleTheme() {
+  const isLight = document.body.classList.toggle('light');
+  document.body.classList.toggle('dark', !isLight);
+  
+  const iconContainer = document.querySelector('.toggle-theme');
+  iconContainer.innerHTML = isLight
+    ? `<span class="icon"><i class="fas fa-sun"></i></span>`
+    : `<span class="icon"><i class="fas fa-moon"></i></span>`;
+}
+
+
+function toggleMobileMenu() {
+  document.querySelector('.nav-links').classList.toggle('active');
+  document.querySelector('.hamburger-menu').classList.toggle('active');
+}
+
+function setupMobileMenuClose() {
+  const navLinks = document.querySelectorAll('.nav-links a');
+  const navMenu = document.querySelector('.nav-links');
+  const hamburger = document.querySelector('.hamburger-menu');
+  navLinks.forEach(link => {
+    link.addEventListener('click', () => {
+      navMenu.classList.remove('active');
+      hamburger.classList.remove('active');
+    });
+  });
+}
+
+// Carousel
+function setupCarouselButtons() {
+  document.querySelectorAll('.carousel-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const direction = btn.classList.contains('left') ? -1 : 1;
+      const targetId = btn.getAttribute('data-target');
+      const carousel = document.getElementById(targetId);
+      carousel.scrollBy({ left: scrollAmount * direction, behavior: 'smooth' });
+    });
+  });
+}
+
+// Hero Slider
 const heroCategories = [
   { name: 'Now Playing', endpoint: 'movie/now_playing' },
   { name: 'Upcoming', endpoint: 'movie/upcoming' },
@@ -70,158 +75,205 @@ const heroCategories = [
 
 let currentCategoryIndex = 0;
 
-async function loadHeroCategory() {
-  const { name, endpoint } = heroCategories[currentCategoryIndex];
-  const badge = document.getElementById('category-badge');
-  const container = document.getElementById('hero-textcontainer');
+function startHeroSlider(type = 'movie') {
+  loadHeroCategory(type);
+  setInterval(() => loadHeroCategory(type), 6000);
+}
+
+async function loadHeroCategory(type = 'movie') {
+  const categorySet = type === 'tv'
+    ? [
+        { name: 'Airing Today', endpoint: 'tv/airing_today' },
+        { name: 'Top Rated', endpoint: 'tv/top_rated' },
+        { name: 'On The Air', endpoint: 'tv/on_the_air' }
+      ]
+    : [
+        { name: 'Now Playing', endpoint: 'movie/now_playing' },
+        { name: 'Upcoming', endpoint: 'movie/upcoming' },
+        { name: 'Top Rated', endpoint: 'movie/top_rated' }
+      ];
+
+  const { name, endpoint } = categorySet[currentCategoryIndex];
 
   try {
     const res = await fetch(`${API.apiUrl}${endpoint}?api_key=${API.apiKey}&language=en-US`);
     const data = await res.json();
-    const movie = data.results?.[0];
+    const item = data.results?.[0];
 
-    if (!movie || !container) return;
+    if (!item) return;
 
-    // Update badge text
-    badge.textContent = `> ${name}`;
-
-    // Clear existing text
-    container.innerHTML = '';
-
-    // Build new hero text
-    const card = document.createElement('div');
-    card.className = 'hero-text';
-    card.innerHTML = `
-      <h1 class="movie-title">${movie.title}</h1>
-      <p class="movie-description">${truncate(movie.overview, 150)}</p>
+    document.getElementById('category-badge').textContent = `> ${name}`;
+    const container = document.getElementById('hero-textcontainer');
+    container.innerHTML = `
+      <div class="hero-text">
+        <h1 class="movie-title">${item.title || item.name}</h1>
+        <p class="movie-description">${truncate(item.overview, 150)}</p>
+      </div>
     `;
-    container.appendChild(card);
-
-    // Update hero background
-    const hero = document.getElementById('hero');
-    hero.style.background = `url(https://image.tmdb.org/t/p/original/${movie.backdrop_path}) center/cover no-repeat`;
-
+    document.getElementById('hero').style.background = `url(https://image.tmdb.org/t/p/original/${item.backdrop_path}) center/cover no-repeat`;
   } catch (err) {
     console.error('Failed to load hero category:', err);
   }
 
-  // Rotate to next category
-  currentCategoryIndex = (currentCategoryIndex + 1) % heroCategories.length;
+  currentCategoryIndex = (currentCategoryIndex + 1) % categorySet.length;
 }
 
-// Call immediately and then every 6 seconds
-function startHeroSlider() {
-  loadHeroCategory();
-  setInterval(loadHeroCategory, 6000); // 6 seconds interval
+
+// Data Fetching and Rendering
+async function getPopular(type = 'movie') {
+  try {
+    const res = await fetch(`${API.apiUrl}${type}/popular?api_key=${API.apiKey}&language=en-US`);
+    const data = await res.json();
+
+    const title = type === 'movie' ? 'Popular Movies' : 'Popular TV Shows';
+    const container = document.getElementById('movie-grid');
+    document.querySelector('#popular-movies h2').textContent = title;
+
+    container.innerHTML = ''; // clear previous
+    data.results.forEach(item => {
+      container.innerHTML += createCard(item, type);
+    });
+  } catch (err) {
+    console.error(`Error fetching popular ${type}s:`, err);
+  }
 }
 
-// Fetch and render popular actors
+
 async function getPopularActors() {
   try {
     const res = await fetch(`${API.apiUrl}person/popular?api_key=${API.apiKey}&language=en-US`);
-    if (!res.ok) throw new Error('Failed to fetch actors');
-
     const data = await res.json();
     const container = document.querySelector('.popular-actors');
-
     data.results.forEach(actor => {
       const knownFor = actor.known_for.map(work => work.title || work.name).join(', ');
-
-      const card = document.createElement('div');
-      card.className = 'actor-card';
-      card.innerHTML = `
-        <div class="poster">
-          <img src="https://image.tmdb.org/t/p/w500${actor.profile_path}" alt="${actor.name}" />
-          <div class="description-overlay">
-            <div class="actor-info">
-              <div class="actor-name">${actor.name}</div>
-              <div class="meta"><span class="year">Active</span></div>
-              <div class="description">Known for: ${truncate(knownFor)}</div>
-<a href="./actordetail.html?id=${actor.id}" class="see-more">See More <span class="arrow">→</span></a>
+      container.innerHTML += `
+        <div class="actor-card">
+          <div class="poster">
+            <img src="https://image.tmdb.org/t/p/w500${actor.profile_path}" alt="${actor.name}" />
+            <div class="description-overlay">
+              <div class="actor-info">
+                <div class="actor-name">${actor.name}</div>
+                <div class="meta"><span class="year">Active</span></div>
+                <div class="description">Known for: ${truncate(knownFor)}</div>
+                <a href="./actordetail.html?id=${actor.id}" class="see-more">See More <span class="arrow">→</span></a>
+              </div>
             </div>
           </div>
         </div>
       `;
-      container.appendChild(card);
     });
   } catch (err) {
     console.error('Error fetching actors:', err);
   }
 }
 
-// Fetch and display popular movies
-async function getPopularMovies(endpoint) {
-  try {
-    const res = await fetch(`${API.apiUrl}${endpoint}?api_key=${API.apiKey}&language=en-US`);
-    if (!res.ok) throw new Error('Failed to fetch movies');
+function createCard(item, type) {
+  const title = item.title || item.name || 'Untitled';
+  const year = (item.release_date || item.first_air_date || '').split('-')[0];
+  const rating = item.vote_average || 'N/A';
+  const overview = truncate(item.overview || 'No description.');
+  const poster = item.poster_path ? `https://image.tmdb.org/t/p/w500${item.poster_path}` : './assets/placeholder.jpg';
 
-    const data = await res.json();
-    const container = document.querySelector('.popular');
-
-    data.results.forEach(movie => {
-      const card = document.createElement('div');
-      card.className = 'movie-card';
-      card.innerHTML = `
-        <div class="poster">
-          <img src="https://image.tmdb.org/t/p/w500${movie.poster_path}" alt="${movie.title}" />
-          <div class="description-overlay">
-            <div class="movie-info">
-              <div class="movie-title">${movie.title}</div>
-              <div class="meta">
-                <span class="year">${movie.release_date}</span>
-                <span class="rating">⭐${movie.vote_average.toFixed(2)}</span>
-              </div>
-              <div class="description">
-                ${truncate(movie.overview, 150)}
-              </div>
-              <a href="./moviedetail.html?id=${movie.id}&type=movie" class="see-more">
-See More <span class="arrow">→</span></a>
+  return `
+    <div class="movie-card">
+      <div class="poster">
+        <img src="${poster}" alt="${title} Poster" />
+        <div class="description-overlay">
+          <div class="movie-info">
+            <div class="movie-title">${title}</div>
+            <div class="meta">
+              <span class="year">${year}</span>
+              <span class="rating">⭐ ${rating}</span>
             </div>
+            <div class="description">${overview}</div>
+            <a href="./moviedetail.html?id=${item.id}&type=${type}" class="see-more">See More <span class="arrow">→</span></a>
           </div>
         </div>
-      `;
-      container.appendChild(card);
+      </div>
+    </div>
+  `;
+}
+
+async function fetchSearchResults(query, type = 'movie', page = 1) {
+  const grid = document.getElementById('movie-grid');
+  const headline = document.querySelector('.headline');
+  const pageIndicator = document.querySelector('.carousel-controls h3');
+
+  try {
+    const url = `${API.apiUrl}search/${type}?api_key=${API.apiKey}&query=${encodeURIComponent(query)}&page=${page}&language=en-US`;
+    const res = await fetch(url);
+    const data = await res.json();
+
+    grid.innerHTML = '';
+    data.results.forEach(item => {
+      grid.innerHTML += createCard(item, type);
     });
+
+    headline.textContent = `Search Results for "${query}"`;
+    const totalPages = data.total_pages > 1000 ? 1000 : data.total_pages;
+    pageIndicator.textContent = `Page ${page} of ${totalPages}`;
+
+    grid.dataset.query = query;
+    grid.dataset.type = type;
+    grid.dataset.page = page;
+    grid.dataset.totalPages = totalPages;
   } catch (err) {
-    console.error('Error fetching popular movies:', err);
+    console.error('Search error:', err);
   }
 }
 
-// Init after DOM is ready
-document.addEventListener('DOMContentLoaded', init);
+function handlePagination() {
+  document.querySelectorAll('.carousel-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const grid = document.getElementById('movie-grid');
+      const query = grid.dataset.query;
+      const type = grid.dataset.type;
+      let page = Number(grid.dataset.page);
+      const totalPages = Number(grid.dataset.totalPages);
+
+      if (btn.classList.contains('right') && page < totalPages) {
+        page++;
+        fetchSearchResults(query, type, page);
+      } else if (btn.classList.contains('left') && page > 1) {
+        page--;
+        fetchSearchResults(query, type, page);
+      }
+    });
+  });
+}
+
+function initSearch() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const query = urlParams.get('q') || '';
+  const type = urlParams.get('type') || 'movie';
+  if (!query) return;
+
+  fetchSearchResults(query, type, 1);
+  handlePagination();
+
+  const movieRadio = document.getElementById('movie');
+  const tvRadio = document.getElementById('tv');
+  if (type === 'movie') movieRadio.checked = true;
+  if (type === 'tv') tvRadio.checked = true;
+}
 
 async function loadActorDetail() {
   const params = new URLSearchParams(window.location.search);
-  const actorId = params.get("id");
-
-  if (!actorId) {
-    console.error("No actor ID in URL.");
-    return;
-  }
+  const actorId = params.get('id');
+  if (!actorId) return;
 
   try {
     const res = await fetch(`${API.apiUrl}person/${actorId}?api_key=${API.apiKey}&language=en-US`);
-    if (!res.ok) throw new Error("Failed to fetch actor");
     const actor = await res.json();
-
     const creditsRes = await fetch(`${API.apiUrl}person/${actorId}/movie_credits?api_key=${API.apiKey}&language=en-US`);
     const creditsData = await creditsRes.json();
 
     const detailSection = document.querySelector('.detail');
     if (!detailSection) return;
 
-    const topMovies = creditsData.cast.slice(0, 4);
-    let topMoviesHTML = '';
-    topMovies.forEach((movie, i) => {
-      topMoviesHTML += `<li>${movie.title || movie.name}</li>`;
-      if (i !== topMovies.length - 1) topMoviesHTML += `<span>| </span>`;
-    });
-
-    const allMoviesHTML = creditsData.cast.map(movie =>
-      `<li>${movie.title || movie.name} (${(movie.release_date || '').slice(0,4) || 'N/A'})</li>`
-    ).join('');
-
-    let backdropPath = creditsData.cast?.[0]?.backdrop_path || actor.profile_path;
+    const topMovies = creditsData.cast.slice(0, 4).map(m => `<li>${m.title || m.name}</li>`).join('<span>| </span>');
+    const allMovies = creditsData.cast.map(m => `<li>${m.title || m.name} (${(m.release_date || '').slice(0, 4) || 'N/A'})</li>`).join('');
+    const backdropPath = creditsData.cast?.[0]?.backdrop_path || actor.profile_path;
 
     detailSection.innerHTML = `
       <div class="detail-bg"></div>
@@ -233,13 +285,8 @@ async function loadActorDetail() {
           <h1 class="rate">Active</h1>
           <p class="typeofmovie">Actor</p>
           <h1 class="title">${actor.name}</h1>
-          <ul class="casts">
-            ${topMoviesHTML}
-            <li id="toggle-full-cast">See full cast →</li>
-          </ul>
-          <ul id="full-cast-list">
-            ${allMoviesHTML}
-          </ul>
+          <ul class="casts">${topMovies}<li id="toggle-full-cast">See full cast →</li></ul>
+          <ul id="full-cast-list">${allMovies}</ul>
           <p class="description">${actor.biography || 'No biography available.'}</p>
           <div class="movieslide">
             <a href="./index.html" class="btn-see-more">&lt;- Back to Home</a>
@@ -248,41 +295,26 @@ async function loadActorDetail() {
       </div>
     `;
 
-    // Set background
     const bg = detailSection.querySelector('.detail-bg');
-    if (bg && backdropPath) {
-      bg.style.backgroundImage = `url(https://image.tmdb.org/t/p/original/${backdropPath})`;
-    }
+    if (bg && backdropPath) bg.style.backgroundImage = `url(https://image.tmdb.org/t/p/original/${backdropPath})`;
 
-    // Toggle cast list
-    const toggle = document.getElementById('toggle-full-cast');
-    const fullList = document.getElementById('full-cast-list');
-    toggle.addEventListener('click', () => {
-      if (fullList.style.display === 'none') {
-        fullList.style.display = 'block';
-        toggle.textContent = 'Hide full cast ↑';
-      } else {
-        fullList.style.display = 'none';
-        toggle.textContent = 'See full cast →';
-      }
+    document.getElementById('toggle-full-cast').addEventListener('click', () => {
+      const fullList = document.getElementById('full-cast-list');
+      const toggle = document.getElementById('toggle-full-cast');
+      const isVisible = fullList.style.display === 'block';
+      fullList.style.display = isVisible ? 'none' : 'block';
+      toggle.textContent = isVisible ? 'See full cast →' : 'Hide full cast ↑';
     });
-
   } catch (err) {
     console.error('Error loading actor details:', err);
   }
 }
 
-// Call it only on actor detail page
-if (window.location.pathname.includes('actordetail.html')) {
-  loadActorDetail();
-}
-
 async function loadMediaDetail() {
   const params = new URLSearchParams(window.location.search);
-  const id = params.get("id");
-  const type = params.get("type") || "movie"; // movie or tv
-
-  if (!id) return console.error("No media ID provided");
+  const id = params.get('id');
+  const type = params.get('type') || 'movie';
+  if (!id) return;
 
   try {
     const [detailsRes, creditsRes] = await Promise.all([
@@ -292,40 +324,27 @@ async function loadMediaDetail() {
 
     const details = await detailsRes.json();
     const credits = await creditsRes.json();
-
     const detailSection = document.querySelector('.detail');
     if (!detailSection) return;
 
-    const topCast = credits.cast.slice(0, 5).map(person => `<li>${person.name}</li>`).join('<span>|</span>');
+    const topCast = credits.cast.slice(0, 5).map(p => `<li>${p.name}</li>`).join('<span>|</span>');
     const fullCast = credits.cast.map(p => `<li>${p.name} as ${p.character}</li>`).join('');
-
-    const tags = details.genres.map(genre => `<li class="taglist">${genre.name}</li>`).join('');
-    const rating = details.vote_average.toFixed(1);
-    const title = details.title || details.name;
-    const subtitle = details.tagline || '';
-    const description = details.overview;
-    const imagePath = details.poster_path || details.backdrop_path;
-    const backdrop = details.backdrop_path || imagePath;
+    const tags = details.genres.map(g => `<li class="taglist">${g.name}</li>`).join('');
 
     detailSection.innerHTML = `
       <div class="detail-bg"></div>
       <div class="containerr">
         <div class="img">
-          <img src="https://image.tmdb.org/t/p/w500${imagePath}" alt="${title}" />
+          <img src="https://image.tmdb.org/t/p/w500${details.poster_path || details.backdrop_path}" alt="${details.title || details.name}" />
         </div>
         <div class="texts">
-          <h1 class="rate">Rating : ⭐${rating}</h1>
-          <p class="typeofmovie">${type === "movie" ? "Movie" : "TV Series"}</p>
-          <h1 class="title">${title}</h1>
-          <h2 class="subtitle">${subtitle}</h2>
-          <ul class="casts">
-            ${topCast}
-            <li id="toggle-full-cast">See full cast →</li>
-          </ul>
-          <ul id="full-cast-list">
-            ${fullCast}
-          </ul>
-          <p class="description">${description}</p>
+          <h1 class="rate">Rating : ⭐${details.vote_average.toFixed(1)}</h1>
+          <p class="typeofmovie">${type === 'movie' ? 'Movie' : 'TV Series'}</p>
+          <h1 class="title">${details.title || details.name}</h1>
+          <h2 class="subtitle">${details.tagline || ''}</h2>
+          <ul class="casts">${topCast}<li id="toggle-full-cast">See full cast →</li></ul>
+          <ul id="full-cast-list">${fullCast}</ul>
+          <p class="description">${details.overview}</p>
           <div class="info">
             <ul class="tags">${tags}</ul>
             <div class="movieslide details">
@@ -337,24 +356,48 @@ async function loadMediaDetail() {
       </div>
     `;
 
-    const bg = detailSection.querySelector('.detail-bg');
-    bg.style.backgroundImage = `url(https://image.tmdb.org/t/p/original${backdrop})`;
+    document.querySelector('.detail-bg').style.backgroundImage = `url(https://image.tmdb.org/t/p/original${details.backdrop_path || details.poster_path})`;
 
-    const toggle = document.getElementById("toggle-full-cast");
-    const fullCastList = document.getElementById("full-cast-list");
-    toggle.addEventListener("click", () => {
-      const isVisible = fullCastList.style.display === "block";
-      fullCastList.style.display = isVisible ? "none" : "block";
-      toggle.textContent = isVisible ? "See full cast →" : "Hide full cast ↑";
+    document.getElementById('toggle-full-cast').addEventListener('click', () => {
+      const fullList = document.getElementById('full-cast-list');
+      const toggle = document.getElementById('toggle-full-cast');
+      const isVisible = fullList.style.display === 'block';
+      fullList.style.display = isVisible ? 'none' : 'block';
+      toggle.textContent = isVisible ? 'See full cast →' : 'Hide full cast ↑';
     });
-
   } catch (err) {
-    console.error("Error loading media detail:", err);
+    console.error('Error loading media detail:', err);
   }
 }
+const moodKeywords = ['sad', 'angry', 'heartbroken', 'happy', 'uplifting', 'melancholic']; // Add more moods if needed
 
-// Only run on movie/tv detail pages
-if (window.location.pathname.includes("moviedetail.html")) {
-  loadMediaDetail();
+function extractMood(input) {
+  const trashWords = ['i', 'feel', 'am', 'like', 'so', 'very', 'today', 'really', 'just', 'a', 'the', 'and'];
+  const words = input
+    .toLowerCase()
+    .split(/\W+/)
+    .filter(word => word && !trashWords.includes(word));
+
+  const foundMood = words.find(word => moodKeywords.includes(word));
+  return foundMood || null;
 }
 
+function init() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const type = urlParams.get('type') || 'movie'; // default to movies
+
+  setupCarouselButtons();
+  setupMobileMenuClose();
+  highlightActiveNavLink();
+  startHeroSlider(type);
+  getPopular(type);
+  getPopularActors();
+}
+
+
+document.addEventListener('DOMContentLoaded', () => {
+  init();
+  if (window.location.pathname.includes('search.html')) initSearch();
+  if (window.location.pathname.includes('actordetail.html')) loadActorDetail();
+  if (window.location.pathname.includes('moviedetail.html')) loadMediaDetail();
+});
