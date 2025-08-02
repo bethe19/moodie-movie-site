@@ -1,7 +1,7 @@
 
 const scrollAmount = 300;
 const API = {
-  apiKey: '3fd2be6f0c70a2a598f084ddfb75487c',
+  apiKey: 'c9155694f84e14b22ad2119ee91077cc',
   apiUrl: 'https://api.themoviedb.org/3/',
 };
 
