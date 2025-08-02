@@ -1,3 +1,4 @@
+
 // Constants
 const scrollAmount = 300;
 const API = {
@@ -30,12 +31,24 @@ function toggleTheme() {
   const isLight = document.body.classList.toggle('light');
   document.body.classList.toggle('dark', !isLight);
   
-  const iconContainer = document.querySelector('.toggle-theme');
+  // Store theme preference in localStorage
+  localStorage.setItem('theme', isLight ? 'light' : 'dark');
+  
+  const iconContainer = document.querySelector('.theme-toggle');
   iconContainer.innerHTML = isLight
     ? `<span class="icon"><i class="fas fa-sun"></i></span>`
     : `<span class="icon"><i class="fas fa-moon"></i></span>`;
 }
 
+// Apply saved theme on page load
+document.addEventListener('DOMContentLoaded', () => {
+  const savedTheme = localStorage.getItem('theme') || 'dark'; // Default to dark if no theme is saved
+  document.body.classList.add(savedTheme);
+  const iconContainer = document.querySelector('.theme-toggle');
+  iconContainer.innerHTML = savedTheme === 'light'
+    ? `<span class="icon"><i class="fas fa-sun"></i></span>`
+    : `<span class="icon"><i class="fas fa-moon"></i></span>`;
+});
 
 function toggleMobileMenu() {
   document.querySelector('.nav-links').classList.toggle('active');
@@ -67,57 +80,44 @@ function setupCarouselButtons() {
 }
 
 // Hero Slider
-const heroCategories = [
-  { name: 'Now Playing', endpoint: 'movie/now_playing' },
-  { name: 'Upcoming', endpoint: 'movie/upcoming' },
-  { name: 'Top Rated', endpoint: 'movie/top_rated' }
-];
-
-let currentCategoryIndex = 0;
-
 function startHeroSlider(type = 'movie') {
   loadHeroCategory(type);
   setInterval(() => loadHeroCategory(type), 6000);
 }
 
 async function loadHeroCategory(type = 'movie') {
-  const categorySet = type === 'tv'
-    ? [
-        { name: 'Airing Today', endpoint: 'tv/airing_today' },
-        { name: 'Top Rated', endpoint: 'tv/top_rated' },
-        { name: 'On The Air', endpoint: 'tv/on_the_air' }
-      ]
-    : [
-        { name: 'Now Playing', endpoint: 'movie/now_playing' },
-        { name: 'Upcoming', endpoint: 'movie/upcoming' },
-        { name: 'Top Rated', endpoint: 'movie/top_rated' }
-      ];
-
-  const { name, endpoint } = categorySet[currentCategoryIndex];
+  const endpoint = type === 'tv' ? 'tv/top_rated' : 'movie/top_rated';
+  const name = 'Top Rated';
 
   try {
     const res = await fetch(`${API.apiUrl}${endpoint}?api_key=${API.apiKey}&language=en-US`);
     const data = await res.json();
-    const item = data.results?.[0];
+    const item = data.results?.[Math.floor(Math.random() * data.results.length)];
 
     if (!item) return;
 
+    const heroTextContainer = document.getElementById('hero-textcontainer');
+    const heroContainer = document.getElementById('hero');
+    if (!heroTextContainer || !heroContainer) return;
+
     document.getElementById('category-badge').textContent = `> ${name}`;
-    const container = document.getElementById('hero-textcontainer');
-    container.innerHTML = `
+    heroTextContainer.innerHTML = `
       <div class="hero-text">
         <h1 class="movie-title">${item.title || item.name}</h1>
         <p class="movie-description">${truncate(item.overview, 150)}</p>
       </div>
     `;
-    document.getElementById('hero').style.background = `url(https://image.tmdb.org/t/p/original/${item.backdrop_path}) center/cover no-repeat`;
+    heroContainer.style.background = `url(https://image.tmdb.org/t/p/original/${item.backdrop_path || item.poster_path || 'https://via.placeholder.com/1920x1080?text=No+Image'}) center/cover no-repeat`;
+
+    // Update "See More" link with the current item's ID and type
+    const seeMoreLink = document.querySelector('.btn-see-more');
+    if (seeMoreLink) {
+      seeMoreLink.href = `./moviedetail.html?id=${item.id}&type=${type}`;
+    }
   } catch (err) {
-    console.error('Failed to load hero category:', err);
+    console.error('Failed to load top-rated hero:', err);
   }
-
-  currentCategoryIndex = (currentCategoryIndex + 1) % categorySet.length;
 }
-
 
 // Data Fetching and Rendering
 async function getPopular(type = 'movie') {
@@ -129,7 +129,7 @@ async function getPopular(type = 'movie') {
     const container = document.getElementById('movie-grid');
     document.querySelector('#popular-movies h2').textContent = title;
 
-    container.innerHTML = ''; // clear previous
+    container.innerHTML = '';
     data.results.forEach(item => {
       container.innerHTML += createCard(item, type);
     });
@@ -137,7 +137,6 @@ async function getPopular(type = 'movie') {
     console.error(`Error fetching popular ${type}s:`, err);
   }
 }
-
 
 async function getPopularActors() {
   try {
@@ -169,10 +168,10 @@ async function getPopularActors() {
 
 function createCard(item, type) {
   const title = item.title || item.name || 'Untitled';
-  const year = (item.release_date || item.first_air_date || '').split('-')[0];
-  const rating = item.vote_average || 'N/A';
+  const year = (item.release_date || item.first_air_date || '').split('-')[0] || 'N/A';
+  const rating = item.vote_average ? item.vote_average.toFixed(1) : 'N/A';
   const overview = truncate(item.overview || 'No description.');
-  const poster = item.poster_path ? `https://image.tmdb.org/t/p/w500${item.poster_path}` : './assets/placeholder.jpg';
+  const poster = item.poster_path ? `https://image.tmdb.org/t/p/w500${item.poster_path}` : 'https://via.placeholder.com/200x300?text=No+Image';
 
   return `
     <div class="movie-card">
@@ -194,10 +193,50 @@ function createCard(item, type) {
   `;
 }
 
+// Search Initialization
+function initSearch() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const query = urlParams.get('q') || '';
+  const initialType = urlParams.get('type') || 'movie';
+
+  const movieRadio = document.getElementById('movie');
+  const tvRadio = document.getElementById('tv');
+  const grid = document.getElementById('movie-grid');
+
+  // Set initial radio button state based on URL parameter
+  if (movieRadio && tvRadio) {
+    movieRadio.checked = initialType === 'movie';
+    tvRadio.checked = initialType === 'tv';
+  }
+
+  // Fetch initial search results if query exists
+  if (query) {
+    fetchSearchResults(query, initialType, 1);
+  }
+
+  // Add event listeners for radio buttons
+  if (movieRadio && tvRadio && grid) {
+    [movieRadio, tvRadio].forEach(radio => {
+      radio.addEventListener('change', () => {
+        const selectedType = movieRadio.checked ? 'movie' : 'tv';
+        const currentQuery = grid.dataset.query || query;
+        if (currentQuery) {
+          fetchSearchResults(currentQuery, selectedType, 1);
+        }
+      });
+    });
+  }
+
+  handlePagination();
+}
+
+// Search Results Fetching
 async function fetchSearchResults(query, type = 'movie', page = 1) {
   const grid = document.getElementById('movie-grid');
   const headline = document.querySelector('.headline');
   const pageIndicator = document.querySelector('.carousel-controls h3');
+
+  if (!grid || !headline || !pageIndicator) return;
 
   try {
     const url = `${API.apiUrl}search/${type}?api_key=${API.apiKey}&query=${encodeURIComponent(query)}&page=${page}&language=en-US`;
@@ -205,9 +244,13 @@ async function fetchSearchResults(query, type = 'movie', page = 1) {
     const data = await res.json();
 
     grid.innerHTML = '';
-    data.results.forEach(item => {
-      grid.innerHTML += createCard(item, type);
-    });
+    if (data.results.length === 0) {
+      grid.innerHTML = `<p>No results found for "${query}" in ${type === 'movie' ? 'movies' : 'TV shows'}.</p>`;
+    } else {
+      data.results.forEach(item => {
+        grid.innerHTML += createCard(item, type);
+      });
+    }
 
     headline.textContent = `Search Results for "${query}"`;
     const totalPages = data.total_pages > 1000 ? 1000 : data.total_pages;
@@ -219,13 +262,17 @@ async function fetchSearchResults(query, type = 'movie', page = 1) {
     grid.dataset.totalPages = totalPages;
   } catch (err) {
     console.error('Search error:', err);
+    grid.innerHTML = `<p>Error fetching results. Please try again.</p>`;
   }
 }
 
+// Pagination Handling
 function handlePagination() {
   document.querySelectorAll('.carousel-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const grid = document.getElementById('movie-grid');
+      if (!grid) return;
+
       const query = grid.dataset.query;
       const type = grid.dataset.type;
       let page = Number(grid.dataset.page);
@@ -240,21 +287,6 @@ function handlePagination() {
       }
     });
   });
-}
-
-function initSearch() {
-  const urlParams = new URLSearchParams(window.location.search);
-  const query = urlParams.get('q') || '';
-  const type = urlParams.get('type') || 'movie';
-  if (!query) return;
-
-  fetchSearchResults(query, type, 1);
-  handlePagination();
-
-  const movieRadio = document.getElementById('movie');
-  const tvRadio = document.getElementById('tv');
-  if (type === 'movie') movieRadio.checked = true;
-  if (type === 'tv') tvRadio.checked = true;
 }
 
 async function loadActorDetail() {
@@ -369,22 +401,197 @@ async function loadMediaDetail() {
     console.error('Error loading media detail:', err);
   }
 }
-const moodKeywords = ['sad', 'angry', 'heartbroken', 'happy', 'uplifting', 'melancholic']; // Add more moods if needed
 
-function extractMood(input) {
-  const trashWords = ['i', 'feel', 'am', 'like', 'so', 'very', 'today', 'really', 'just', 'a', 'the', 'and'];
-  const words = input
+// Mood-based Search
+const stopWords = new Set([
+  "i", "me", "my", "myself", "feel", "am", "is", "are", "was", "were", "be", "been", "being",
+  "have", "has", "had", "do", "does", "did", "but", "and", "or", "a", "an", "the", "in", "on",
+  "at", "for", "to", "so", "very", "today", "really", "just"
+]);
+
+async function fetchSmartMatches(page = 1) {
+  const grid = document.getElementById('movie-grid');
+  const headline = document.querySelector('.headline');
+  const pageIndicator = document.querySelector('.carousel-controls h3');
+  const urlParams = new URLSearchParams(window.location.search);
+  const mood = urlParams.get('q') || document.getElementById('mood-input')?.value.trim();
+
+  grid.innerHTML = "finding the best match your mood ... ";
+
+  if (!mood) {
+    grid.innerHTML = "Give me a feeling.";
+    return;
+  }
+
+  const words = mood
     .toLowerCase()
-    .split(/\W+/)
-    .filter(word => word && !trashWords.includes(word));
+    .split(/[\s,]+/)
+    .filter(w => w.length > 2 && !stopWords.has(w));
 
-  const foundMood = words.find(word => moodKeywords.includes(word));
-  return foundMood || null;
+  let keywordMap = new Map();
+  let actorId = null;
+  let actorName = null;
+
+  for (let word of words) {
+    try {
+      const kwRes = await fetch(`${API.apiUrl}search/keyword?api_key=${API.apiKey}&query=${encodeURIComponent(word)}`);
+      const kwData = await kwRes.json();
+      if (kwData.results?.length) {
+        keywordMap.set(word, kwData.results[0].id);
+        continue;
+      }
+
+      const personRes = await fetch(`${API.apiUrl}search/person?api_key=${API.apiKey}&query=${encodeURIComponent(word)}`);
+      const personData = await personRes.json();
+      if (personData.results?.length) {
+        actorId = personData.results[0].id;
+        actorName = personData.results[0].name;
+      }
+    } catch (err) {
+      console.error(`Error searching for ${word}:`, err);
+    }
+  }
+
+  if (!keywordMap.size && !actorId) {
+    grid.innerHTML = "Nothing matched your feelings or actors 😭";
+    return;
+  }
+
+  const contentMap = new Map();
+  let totalPages = 1;
+
+  for (let [word, kid] of keywordMap) {
+    const endpoints = [`discover/movie`, `discover/tv`];
+    for (let type of endpoints) {
+      try {
+        const res = await fetch(`${API.apiUrl}${type}?api_key=${API.apiKey}&with_keywords=${kid}&sort_by=popularity.desc&page=${page}&language=en-US`);
+        const data = await res.json();
+        totalPages = Math.max(totalPages, data.total_pages > 1000 ? 1000 : data.total_pages);
+        for (let item of data.results.slice(0, 10)) {
+          const id = `${type}-${item.id}`;
+          if (!contentMap.has(id)) {
+            contentMap.set(id, { ...item, media_type: type.includes('movie') ? 'movie' : 'tv', matchCount: 1, matchedWords: new Set([word]) });
+          } else {
+            const existing = contentMap.get(id);
+            existing.matchCount++;
+            existing.matchedWords.add(word);
+          }
+        }
+      } catch (err) {
+        console.error(`Error fetching ${type} for keyword ${word}:`, err);
+      }
+    }
+  }
+
+  if (actorId) {
+    try {
+      const actorRes = await fetch(`${API.apiUrl}person/${actorId}/combined_credits?api_key=${API.apiKey}&language=en-US`);
+      const actorData = await actorRes.json();
+      for (let item of actorData.cast.slice(0, 10)) {
+        const id = `${item.media_type}-${item.id}`;
+        if (!contentMap.has(id)) {
+          contentMap.set(id, { ...item, media_type: item.media_type, matchCount: 1, matchedWords: new Set([actorName]) });
+        } else {
+          const existing = contentMap.get(id);
+          existing.matchCount++;
+          existing.matchedWords.add(actorName);
+        }
+      }
+    } catch (err) {
+      console.error(`Error fetching credits for actor ${actorName}:`, err);
+    }
+  }
+
+  const finalList = Array.from(contentMap.values());
+  finalList.sort((a, b) => b.matchCount - a.matchCount);
+
+  grid.innerHTML = '';
+  if (finalList.length === 0) {
+    grid.innerHTML = "No matches found for your mood or actors 😭";
+    return;
+  }
+
+  finalList.slice(0, 6).forEach(item => {
+    grid.innerHTML += createCard(item, item.media_type);
+  });
+
+  headline.textContent = `Best Match Your Mood "${mood}"`;
+  pageIndicator.textContent = `Page ${page} of ${totalPages}`;
+
+  grid.dataset.query = mood;
+  grid.dataset.type = 'multi';
+  grid.dataset.page = page;
+  grid.dataset.totalPages = totalPages;
+}
+
+function handleMoodPagination() {
+  document.querySelectorAll('.carousel-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const grid = document.getElementById('movie-grid');
+      const query = grid.dataset.query;
+      let page = Number(grid.dataset.page);
+      const totalPages = Number(grid.dataset.totalPages);
+
+      if (btn.classList.contains('right') && page < totalPages) {
+        page++;
+        fetchSmartMatches(page);
+      } else if (btn.classList.contains('left') && page > 1) {
+        page--;
+        fetchSmartMatches(page);
+      }
+    });
+  });
+}
+
+function initMoodSearch() {
+  // Handle mood search in hero section (index.html)
+  const heroMoodSubmit = document.getElementById('mood-submit');
+  const heroMoodInput = document.getElementById('mood-input');
+  if (heroMoodSubmit && heroMoodInput) {
+    heroMoodSubmit.addEventListener('click', () => {
+      const mood = heroMoodInput.value.trim();
+      if (mood) {
+        window.location.href = `./mood.html?q=${encodeURIComponent(mood)}`;
+      }
+    });
+    heroMoodInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        const mood = heroMoodInput.value.trim();
+        if (mood) {
+          window.location.href = `./mood.html?q=${encodeURIComponent(mood)}`;
+        }
+      }
+    });
+  }
+
+  // Handle mood search on mood.html
+  const moodSubmit = document.getElementById('mood-submit');
+  const moodInput = document.getElementById('mood-input');
+  if (moodSubmit && moodInput) {
+    moodSubmit.addEventListener('click', () => fetchSmartMatches(1));
+    moodInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') fetchSmartMatches(1);
+    });
+  }
+
+  // Check for query parameter on mood.html
+  if (window.location.pathname.includes('mood.html')) {
+    const urlParams = new URLSearchParams(window.location.search);
+    const query = urlParams.get('q');
+    if (query) {
+      const moodInput = document.getElementById('mood-input');
+      if (moodInput) {
+        moodInput.value = query;
+        fetchSmartMatches(1);
+      }
+    }
+    handleMoodPagination();
+  }
 }
 
 function init() {
   const urlParams = new URLSearchParams(window.location.search);
-  const type = urlParams.get('type') || 'movie'; // default to movies
+  const type = urlParams.get('type') || 'movie';
 
   setupCarouselButtons();
   setupMobileMenuClose();
@@ -392,8 +599,8 @@ function init() {
   startHeroSlider(type);
   getPopular(type);
   getPopularActors();
+  initMoodSearch();
 }
-
 
 document.addEventListener('DOMContentLoaded', () => {
   init();
