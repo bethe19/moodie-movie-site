@@ -1,17 +1,14 @@
 
-// Constants
 const scrollAmount = 300;
 const API = {
   apiKey: '3fd2be6f0c70a2a598f084ddfb75487c',
   apiUrl: 'https://api.themoviedb.org/3/',
 };
 
-// Global State
 const global = {
   currentPage: window.location.pathname,
 };
 
-// Utility Functions
 function print(x) { console.log(x); }
 
 function truncate(str, maxLength = 100) {
@@ -31,7 +28,6 @@ function toggleTheme() {
   const isLight = document.body.classList.toggle('light');
   document.body.classList.toggle('dark', !isLight);
   
-  // Store theme preference in localStorage
   localStorage.setItem('theme', isLight ? 'light' : 'dark');
   
   const iconContainer = document.querySelector('.theme-toggle');
@@ -109,8 +105,22 @@ async function loadHeroCategory(type = 'movie') {
     `;
     heroContainer.style.background = `url(https://image.tmdb.org/t/p/original/${item.backdrop_path || item.poster_path || 'https://via.placeholder.com/1920x1080?text=No+Image'}) center/cover no-repeat`;
 
-    // Update "See More" link with the current item's ID and type
     const seeMoreLink = document.querySelector('.btn-see-more');
+    const addBtn = document.querySelector('.btn-add');
+if (addBtn) {
+  addBtn.onclick = () => {
+    addToWatchlist({
+      id: item.id,
+      type,
+      title: item.title || item.name,
+      poster_path: item.poster_path || item.backdrop_path,
+      vote_average: item.vote_average,
+      release_date: item.release_date || item.first_air_date,
+      overview: item.overview
+    });
+  };
+}
+
     if (seeMoreLink) {
       seeMoreLink.href = `./moviedetail.html?id=${item.id}&type=${type}`;
     }
@@ -119,7 +129,6 @@ async function loadHeroCategory(type = 'movie') {
   }
 }
 
-// Data Fetching and Rendering
 async function getPopular(type = 'movie') {
   try {
     const res = await fetch(`${API.apiUrl}${type}/popular?api_key=${API.apiKey}&language=en-US`);
@@ -193,7 +202,6 @@ function createCard(item, type) {
   `;
 }
 
-// Search Initialization
 function initSearch() {
   const urlParams = new URLSearchParams(window.location.search);
   const query = urlParams.get('q') || '';
@@ -203,18 +211,15 @@ function initSearch() {
   const tvRadio = document.getElementById('tv');
   const grid = document.getElementById('movie-grid');
 
-  // Set initial radio button state based on URL parameter
   if (movieRadio && tvRadio) {
     movieRadio.checked = initialType === 'movie';
     tvRadio.checked = initialType === 'tv';
   }
 
-  // Fetch initial search results if query exists
   if (query) {
     fetchSearchResults(query, initialType, 1);
   }
 
-  // Add event listeners for radio buttons
   if (movieRadio && tvRadio && grid) {
     [movieRadio, tvRadio].forEach(radio => {
       radio.addEventListener('change', () => {
@@ -230,7 +235,6 @@ function initSearch() {
   handlePagination();
 }
 
-// Search Results Fetching
 async function fetchSearchResults(query, type = 'movie', page = 1) {
   const grid = document.getElementById('movie-grid');
   const headline = document.querySelector('.headline');
@@ -266,7 +270,6 @@ async function fetchSearchResults(query, type = 'movie', page = 1) {
   }
 }
 
-// Pagination Handling
 function handlePagination() {
   document.querySelectorAll('.carousel-btn').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -397,9 +400,30 @@ async function loadMediaDetail() {
       fullList.style.display = isVisible ? 'none' : 'block';
       toggle.textContent = isVisible ? 'See full cast →' : 'Hide full cast ↑';
     });
+    document.querySelector('.btn-add').addEventListener('click', () => {
+      addToWatchlist({
+        id: details.id,
+        type,
+        title: details.title || details.name,
+        poster_path: details.poster_path || details.backdrop_path,
+        vote_average: details.vote_average,
+        release_date: details.release_date || details.first_air_date,
+        overview: details.overview
+      });
+    });
+    
   } catch (err) {
     console.error('Error loading media detail:', err);
   }
+}
+function showCustomAlert(message = 'Added to Watchlist ✅') {
+  const alertBox = document.getElementById('custom-alert');
+  if (!alertBox) return;
+  alertBox.textContent = message;
+  alertBox.classList.add('show');
+  setTimeout(() => {
+    alertBox.classList.remove('show');
+  }, 2000);
 }
 
 // Mood-based Search
@@ -544,7 +568,6 @@ function handleMoodPagination() {
 }
 
 function initMoodSearch() {
-  // Handle mood search in hero section (index.html)
   const heroMoodSubmit = document.getElementById('mood-submit');
   const heroMoodInput = document.getElementById('mood-input');
   if (heroMoodSubmit && heroMoodInput) {
@@ -564,7 +587,6 @@ function initMoodSearch() {
     });
   }
 
-  // Handle mood search on mood.html
   const moodSubmit = document.getElementById('mood-submit');
   const moodInput = document.getElementById('mood-input');
   if (moodSubmit && moodInput) {
@@ -588,6 +610,72 @@ function initMoodSearch() {
     handleMoodPagination();
   }
 }
+function loadWatchlist(page = 1) {
+  const watchlist = JSON.parse(localStorage.getItem('watchlist')) || [];
+  const container = document.getElementById('movie-grid');
+  const headline = document.querySelector('.headline');
+  const pageIndicator = document.querySelector('.carousel-controls h3');
+
+  if (!container) return;
+
+  const perPage = 6;
+  const totalPages = Math.ceil(watchlist.length / perPage);
+
+  if (watchlist.length === 0) {
+    container.innerHTML = "<p>Your Watchlist is empty 😢</p>";
+    if (headline) headline.textContent = `Your Watch List`;
+    if (pageIndicator) pageIndicator.textContent = ``;
+    return;
+  }
+
+  // Save current page to dataset for navigation
+  container.dataset.page = page;
+  container.dataset.totalPages = totalPages;
+
+  // Clear and show paginated items
+  container.innerHTML = '';
+  const start = (page - 1) * perPage;
+  const end = start + perPage;
+  const currentItems = watchlist.slice(start, end);
+
+  currentItems.forEach(item => {
+    container.innerHTML += createCard(item, item.type);
+  });
+
+  if (headline) headline.textContent = `Your Watch List (${watchlist.length})`;
+  if (pageIndicator) pageIndicator.textContent = `Page ${page} of ${totalPages}`;
+}
+
+function addToWatchlist(item) {
+  const watchlist = JSON.parse(localStorage.getItem('watchlist')) || [];
+  const exists = watchlist.some(w => w.id === item.id && w.type === item.type);
+  if (!exists) {
+    watchlist.push(item);
+    localStorage.setItem('watchlist', JSON.stringify(watchlist));
+    showCustomAlert(`${item.title || item.name} added to Watchlist ✅`);
+  } else {
+    showCustomAlert(`${item.title || item.name} is already in your Watchlist!`);
+  }
+}
+
+function setupWatchlistPagination() {
+  const container = document.getElementById('movie-grid');
+  const leftBtn = document.querySelector('.carousel-btn.left');
+  const rightBtn = document.querySelector('.carousel-btn.right');
+
+  if (!container || !leftBtn || !rightBtn) return;
+
+  leftBtn.addEventListener('click', () => {
+    let page = Number(container.dataset.page);
+    if (page > 1) loadWatchlist(page - 1);
+  });
+
+  rightBtn.addEventListener('click', () => {
+    let page = Number(container.dataset.page);
+    const total = Number(container.dataset.totalPages);
+    if (page < total) loadWatchlist(page + 1);
+  });
+}
 
 function init() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -607,4 +695,8 @@ document.addEventListener('DOMContentLoaded', () => {
   if (window.location.pathname.includes('search.html')) initSearch();
   if (window.location.pathname.includes('actordetail.html')) loadActorDetail();
   if (window.location.pathname.includes('moviedetail.html')) loadMediaDetail();
+  if (window.location.pathname.includes('list.html')){
+     loadWatchlist();
+     setupWatchlistPagination();
+  }
 });

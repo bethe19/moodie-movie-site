@@ -947,4 +947,23 @@ h2 {
 .details{
   margin-top: 1rem
 }
+.custom-alert {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #2ecc71;
+  color: #fff;
+  padding: 1rem 2rem;
+  border-radius: 10px;
+  font-weight: bold;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s ease;
+  z-index: 1000;
+}
+.custom-alert.show {
+  opacity: 1;
+  pointer-events: auto;
+}
 
