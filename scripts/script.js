@@ -36,9 +36,8 @@ function toggleTheme() {
     : `<span class="icon"><i class="fas fa-moon"></i></span>`;
 }
 
-// Apply saved theme on page load
 document.addEventListener('DOMContentLoaded', () => {
-  const savedTheme = localStorage.getItem('theme') || 'dark'; // Default to dark if no theme is saved
+  const savedTheme = localStorage.getItem('theme') || 'dark';
   document.body.classList.add(savedTheme);
   const iconContainer = document.querySelector('.theme-toggle');
   iconContainer.innerHTML = savedTheme === 'light'
@@ -155,7 +154,7 @@ async function getPopularActors() {
     data.results.forEach(actor => {
       const knownFor = actor.known_for.map(work => work.title || work.name).join(', ');
       container.innerHTML += `
-        <div class="actor-card">
+        <div class="actor-card" onclick="window.location.href='./actordetail.html?id=${actor.id}'">
           <div class="poster">
             <img src="https://image.tmdb.org/t/p/w500${actor.profile_path}" alt="${actor.name}" />
             <div class="description-overlay">
@@ -183,7 +182,7 @@ function createCard(item, type) {
   const poster = item.poster_path ? `https://image.tmdb.org/t/p/w500${item.poster_path}` : 'https://via.placeholder.com/200x300?text=No+Image';
 
   return `
-    <div class="movie-card">
+    <div class="movie-card" onclick="window.location.href='./moviedetail.html?id=${item.id}&type=${type}'">
       <div class="poster">
         <img src="${poster}" alt="${title} Poster" />
         <div class="description-overlay">
@@ -535,7 +534,7 @@ async function fetchSmartMatches(page = 1) {
     return;
   }
 
-  finalList.slice(0, 6).forEach(item => {
+  finalList.slice(0, 12).forEach(item => {
     grid.innerHTML += createCard(item, item.media_type);
   });
 
@@ -618,7 +617,7 @@ function loadWatchlist(page = 1) {
 
   if (!container) return;
 
-  const perPage = 6;
+  const perPage = 12;
   const totalPages = Math.ceil(watchlist.length / perPage);
 
   if (watchlist.length === 0) {

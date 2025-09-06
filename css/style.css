@@ -1,35 +1,44 @@
 
 /* === BASE COLORS === */
 :root {
-  --bg: #10100E;
-  --bgd: #10100E60;
-  --card-bg: #181716;
-  --text: #ffffff;
-  --text-muted: #d9d9d9;
-  --accent: #d98328;
-  --accent-hover: #f4a740;
-  --shadow: rgba(0, 0, 0, 0.4);
-  --gradient-overlay: linear-gradient(to top, #10100E, #10100E00, #10100E);
-  --gradient-overlay1: linear-gradient(to right, #10100E, #10100E00);
-  --gradient-overlaydetail: linear-gradient(to top, #10100E, #10100E20, #10100E);
-
+  --bg: #1B1813;
+  --bgd: #1B181360;
+  --card-bg: #2B261F;
+  --text: #F4E9D8;
+  --text-muted: #B8A78A;
+  --accent: #D4A017;
+  --accent-hover: #E8B923;
+  --shadow: rgba(212, 160, 23, 0.3);
+  --gradient-overlay: linear-gradient(to top, #1B1813, #1B181300, #1B1813);
+  --gradient-overlay1: linear-gradient(to right, #1B1813, #1B181300);
+  --gradient-overlaydetail: linear-gradient(to top, #1B1813 0%, #1B181380 30%, #1B181380 70%, #1B1813 100%);
 }
 
-body.light {
-  --bg: #e9e8e8;
-  --card-bg: #e0e0e0;
-  --text: #111111;
-  --text-muted: #131313;
-  --accent: #b85d09;
-  --accent-hover: #e87500;
-  --shadow: rgba(0, 0, 0, 0.1);
-  --gradient-overlay: linear-gradient(to top, #e9e8e8, #10100E00, #e9e8e890);
-  --gradient-overlay1: linear-gradient(to right, #e9e8e8, #10100E00);
-  --gradient-overlaydetail: linear-gradient(to top, #e9e8e8, #e9e8e830, #e9e8e8);
-
+body {
   background-color: var(--bg);
   color: var(--text);
+  transition: 
+    background-color 0.5s ease,
+    color 0.5s ease,
+    box-shadow 0.5s ease,
+    background-image 0.8s ease;
 }
+
+/* Light Theme */
+body.light {
+  --bg: #F5F0E1;
+  --card-bg: #E8E0CC;
+  --text: #2F2A1F;
+  --text-muted: #444037;
+  --accent: #D4A017;
+  --accent-hover: #E8B923;
+  --shadow: rgba(0, 0, 0, 0.1);
+  --gradient-overlay: linear-gradient(to top, #F5F0E1, #F5F0E100, #F5F0E190);
+  --gradient-overlay1: linear-gradient(to right, #F5F0E1, #F5F0E100);
+  --gradient-overlaydetail: linear-gradient(to top, #F5F0E1 0%, #F5F0E180 30%, #F5F0E180 70%, #F5F0E1 100%);
+}
+
+
 
 /* === RESET === */
 * {
@@ -696,7 +705,7 @@ h2 {
   border-radius: 12px;
   overflow: hidden;
   border: 1px solid #222;
-  box-shadow: 0 8px 20px var(--shadow);
+
   background: var(--card-bg);
   position: relative;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -704,7 +713,7 @@ h2 {
 
 .movie-card:hover,
 .actor-card:hover {
-  box-shadow: 0 12px 30px var(--shadow);
+  box-shadow: 0 8px 10px var(--shadow);
   border-color: var(--accent);
 }
 
@@ -795,7 +804,9 @@ h2 {
   gap: 4px;
   text-decoration: none;
 }
-
+.movie-card, .actor-card {
+  cursor: pointer;
+}
 .see-more:hover {
   color: var(--accent-hover);
 }

@@ -53,15 +53,20 @@
     </header>
 
     <main class="main">
-      <section  class="searchcontent">
-        <div class="search-radio" style="display: flex; justify-content: center; gap: 1rem;">
-          <input type="radio" id="movie" name="type" value="movie" checked />
-          <label for="movies">Movies</label>
-          <input type="radio" id="tv" name="type" value="tv" />
-          <label for="shows">Shows</label>
-        </div>
-        <h1 class="headline" id="search-headline">Search Results</h1>
-      </section>
+  <section class="searchcontent">
+    <h1 class="headline" id="search-headline">Discover Your Cinematic Escape</h1>
+    <div class="search-radio" style="display: flex; justify-content: center; gap: 1rem;">
+      <div class="radio-group" role="radiogroup" aria-labelledby="search-type-label">
+        <input type="radio" id="movie" name="type" value="movie" checked aria-label="Search for movies"
+                      style="appearance: none; -webkit-appearance: none; -moz-appearance: none; width: 0; height: 0; margin: 0; opacity: 0;" />
+        <label for="movie">Movies <i class="fas fa-film"></i></label>
+        <input type="radio" id="tv" name="type" value="tv" aria-label="Search for shows"
+            style="appearance: none; -webkit-appearance: none; -moz-appearance: none; width: 0; height: 0; margin: 0; opacity: 0;" />
+
+        <label for="tv">Shows <i class="fas fa-tv"></i></label>
+      </div>
+    </div>
+  </section>
       <section class="result">
         <div class="container">
           <div
