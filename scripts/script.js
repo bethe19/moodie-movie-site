@@ -1,10 +1,15 @@
 
 const scrollAmount = 300;
+// For production with direct API calls
 const API = {
-  apiKey: '',
-  apiUrl: 'http://localhost:5000/api/',
+  apiKey: 'c9155694f84e14b22ad2119ee91077cc',
+  apiUrl: 'https://api.themoviedb.org/3/',
 };
-
+// For local development with the proxy server
+// const API = {
+//   apiKey: '',
+//   apiUrl: 'http://localhost:5000/api/',
+// };
 const global = {
   currentPage: window.location.pathname,
 };
