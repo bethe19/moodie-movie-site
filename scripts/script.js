@@ -1,4 +1,3 @@
-
 const scrollAmount = 300;
 // For production with direct API calls
 const API = {
@@ -111,19 +110,19 @@ async function loadHeroCategory(type = 'movie') {
 
     const seeMoreLink = document.querySelector('.btn-see-more');
     const addBtn = document.querySelector('.btn-add');
-if (addBtn) {
-  addBtn.onclick = () => {
-    addToWatchlist({
-      id: item.id,
-      type,
-      title: item.title || item.name,
-      poster_path: item.poster_path || item.backdrop_path,
-      vote_average: item.vote_average,
-      release_date: item.release_date || item.first_air_date,
-      overview: item.overview
-    });
-  };
-}
+    if (addBtn) {
+      addBtn.onclick = () => {
+        addToWatchlist({
+          id: item.id,
+          type,
+          title: item.title || item.name,
+          poster_path: item.poster_path || item.backdrop_path,
+          vote_average: item.vote_average,
+          release_date: item.release_date || item.first_air_date,
+          overview: item.overview
+        });
+      };
+    }
 
     if (seeMoreLink) {
       seeMoreLink.href = `./moviedetail.html?id=${item.id}&type=${type}`;
@@ -180,30 +179,52 @@ async function getPopularActors() {
 }
 
 function createCard(item, type) {
-  const title = item.title || item.name || 'Untitled';
-  const year = (item.release_date || item.first_air_date || '').split('-')[0] || 'N/A';
-  const rating = item.vote_average ? item.vote_average.toFixed(1) : 'N/A';
-  const overview = truncate(item.overview || 'No description.');
-  const poster = item.poster_path ? `https://image.tmdb.org/t/p/w500${item.poster_path}` : 'https://via.placeholder.com/200x300?text=No+Image';
+  if (type === 'person') {
+    const name = item.name || 'Unknown';
+    const knownFor = item.known_for ? item.known_for.map(work => work.title || work.name).join(', ') : 'N/A';
+    const profile = item.profile_path ? `https://image.tmdb.org/t/p/w500${item.profile_path}` : 'https://via.placeholder.com/200x300?text=No+Image';
 
-  return `
-    <div class="movie-card" onclick="window.location.href='./moviedetail.html?id=${item.id}&type=${type}'">
-      <div class="poster">
-        <img src="${poster}" alt="${title} Poster" />
-        <div class="description-overlay">
-          <div class="movie-info">
-            <div class="movie-title">${title}</div>
-            <div class="meta">
-              <span class="year">${year}</span>
-              <span class="rating">⭐ ${rating}</span>
+    return `
+      <div class="actor-card" onclick="window.location.href='./actordetail.html?id=${item.id}'">
+        <div class="poster">
+          <img src="${profile}" alt="${name}" />
+          <div class="description-overlay">
+            <div class="actor-info">
+              <div class="actor-name">${name}</div>
+              <div class="meta"><span class="year">Active</span></div>
+              <div class="description">Known for: ${truncate(knownFor)}</div>
+              <a href="./actordetail.html?id=${item.id}" class="see-more">See More <span class="arrow">→</span></a>
             </div>
-            <div class="description">${overview}</div>
-            <a href="./moviedetail.html?id=${item.id}&type=${type}" class="see-more">See More <span class="arrow">→</span></a>
           </div>
         </div>
       </div>
-    </div>
-  `;
+    `;
+  } else {
+    const title = item.title || item.name || 'Untitled';
+    const year = (item.release_date || item.first_air_date || '').split('-')[0] || 'N/A';
+    const rating = item.vote_average ? item.vote_average.toFixed(1) : 'N/A';
+    const overview = truncate(item.overview || 'No description.');
+    const poster = item.poster_path ? `https://image.tmdb.org/t/p/w500${item.poster_path}` : 'https://via.placeholder.com/200x300?text=No+Image';
+
+    return `
+      <div class="movie-card" onclick="window.location.href='./moviedetail.html?id=${item.id}&type=${type}'">
+        <div class="poster">
+          <img src="${poster}" alt="${title} Poster" />
+          <div class="description-overlay">
+            <div class="movie-info">
+              <div class="movie-title">${title}</div>
+              <div class="meta">
+                <span class="year">${year}</span>
+                <span class="rating">⭐ ${rating}</span>
+              </div>
+              <div class="description">${overview}</div>
+              <a href="./moviedetail.html?id=${item.id}&type=${type}" class="see-more">See More <span class="arrow">→</span></a>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
 }
 
 function initSearch() {
@@ -213,21 +234,23 @@ function initSearch() {
 
   const movieRadio = document.getElementById('movie');
   const tvRadio = document.getElementById('tv');
+  const personRadio = document.getElementById('person');
   const grid = document.getElementById('movie-grid');
 
-  if (movieRadio && tvRadio) {
+  if (movieRadio && tvRadio && personRadio) {
     movieRadio.checked = initialType === 'movie';
     tvRadio.checked = initialType === 'tv';
+    personRadio.checked = initialType === 'person';
   }
 
   if (query) {
     fetchSearchResults(query, initialType, 1);
   }
 
-  if (movieRadio && tvRadio && grid) {
-    [movieRadio, tvRadio].forEach(radio => {
+  if (movieRadio && tvRadio && personRadio && grid) {
+    [movieRadio, tvRadio, personRadio].forEach(radio => {
       radio.addEventListener('change', () => {
-        const selectedType = movieRadio.checked ? 'movie' : 'tv';
+        const selectedType = document.querySelector('input[name="type"]:checked').value;
         const currentQuery = grid.dataset.query || query;
         if (currentQuery) {
           fetchSearchResults(currentQuery, selectedType, 1);
@@ -247,13 +270,28 @@ async function fetchSearchResults(query, type = 'movie', page = 1) {
   if (!grid || !headline || !pageIndicator) return;
 
   try {
-    const url = `${API.apiUrl}search/${type}?api_key=${API.apiKey}&query=${encodeURIComponent(query)}&page=${page}&language=en-US`;
+    let searchEndpoint = 'search';
+    let resultsLabel = '';
+    if (type === 'movie') {
+      searchEndpoint += '/movie';
+      resultsLabel = 'movies';
+    } else if (type === 'tv') {
+      searchEndpoint += '/tv';
+      resultsLabel = 'TV shows';
+    } else if (type === 'person') {
+      searchEndpoint += '/person';
+      resultsLabel = 'actors';
+    } else {
+      throw new Error('Invalid type provided');
+    }
+
+    const url = `${API.apiUrl}${searchEndpoint}?api_key=${API.apiKey}&query=${encodeURIComponent(query)}&page=${page}&language=en-US`;
     const res = await fetch(url);
     const data = await res.json();
 
     grid.innerHTML = '';
     if (data.results.length === 0) {
-      grid.innerHTML = `<p>No results found for "${query}" in ${type === 'movie' ? 'movies' : 'TV shows'}.</p>`;
+      grid.innerHTML = `<p>No results found for "${query}" in ${resultsLabel}.</p>`;
     } else {
       data.results.forEach(item => {
         grid.innerHTML += createCard(item, type);
@@ -335,7 +373,7 @@ async function loadActorDetail() {
     `;
 
     const bg = detailSection.querySelector('.detail-bg');
-    if (bg && backdropPath) bg.style.backgroundImage = `url(https://image.tmdb.org/t/p/original/${backdropPath})`;
+    if (bg && backdropPath) bg.style.backgroundImage = `ur[](https://image.tmdb.org/t/p/original/${backdropPath})`;
 
     document.getElementById('toggle-full-cast').addEventListener('click', () => {
       const fullList = document.getElementById('full-cast-list');
