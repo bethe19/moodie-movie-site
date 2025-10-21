@@ -2,6 +2,7 @@ import express from "express";
 import fetch from "node-fetch";
 import dotenv from "dotenv";
 import cors from "cors"; // Add CORS middleware
+import rateLimit from "express-rate-limit";
 import path from "path"; // For serving static files
 import { fileURLToPath } from "url";
 
@@ -22,12 +23,26 @@ if (!TMDB_KEY) {
 }
 
 // Middleware
-app.use(cors({ origin: ["http://localhost:3000", "https://moodie-neon.vercel.app"] })); // Restrict CORS
+app.use(
+  cors({
+    origin: ["http://localhost:3000", "http://localhost:5000", "https://moodie-neon.vercel.app"],
+    methods: ["GET"],
+    allowedHeaders: ["Content-Type"],
+  })
+); // Restrict CORS
 app.use(express.json()); // For parsing JSON bodies (if needed)
 app.use(express.static(__dirname)); // Serve static files from current directory
 
+// Basic rate limiter for API routes
+const apiLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 60,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 // Proxy endpoint for TMDB API
-app.get("/api/*", async (req, res) => {
+app.get("/api/*", apiLimiter, async (req, res) => {
   try {
     const tmdbPath = req.params[0];
     // Validate TMDB path (basic check for allowed endpoints)
@@ -45,10 +60,11 @@ app.get("/api/*", async (req, res) => {
 
     // Build URL with query parameters
     const url = new URL(`https://api.themoviedb.org/3/${tmdbPath}`);
+    // Always use server-side TMDB key; ignore any client-sent api_key
     url.searchParams.append("api_key", TMDB_KEY);
     url.searchParams.append("language", req.query.language || "en-US"); // Allow language override
     for (const [key, value] of Object.entries(req.query)) {
-      if (key !== "language") url.searchParams.append(key, value); // Forward other query params
+      if (key !== "language" && key !== "api_key") url.searchParams.append(key, value); // Forward other query params except api_key
     }
 
     const response = await fetch(url, { headers: { Accept: "application/json" } });

@@ -1,14 +1,10 @@
 const scrollAmount = 300;
-// For production with direct API calls
+// Decide API base depending on origin (use proxy when served by our server)
+const isServedByBackend = location.origin.includes('localhost:5000');
 const API = {
-  apiKey: 'c9155694f84e14b22ad2119ee91077cc',
-  apiUrl: 'https://api.themoviedb.org/3/',
+  apiKey: isServedByBackend ? '' : (window.CONFIG?.TMDB_API_KEY || ''),
+  apiUrl: isServedByBackend ? 'http://localhost:5000/api/' : 'https://api.themoviedb.org/3/',
 };
-// For local development with the proxy server
-// const API = {
-//   apiKey: '',
-//   apiUrl: 'http://localhost:5000/api/',
-// };
 const global = {
   currentPage: window.location.pathname,
 };
@@ -373,7 +369,7 @@ async function loadActorDetail() {
     `;
 
     const bg = detailSection.querySelector('.detail-bg');
-    if (bg && backdropPath) bg.style.backgroundImage = `ur[](https://image.tmdb.org/t/p/original/${backdropPath})`;
+    if (bg && backdropPath) bg.style.backgroundImage = `url(https://image.tmdb.org/t/p/original/${backdropPath})`;
 
     document.getElementById('toggle-full-cast').addEventListener('click', () => {
       const fullList = document.getElementById('full-cast-list');

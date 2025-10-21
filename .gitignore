@@ -1,4 +1,6 @@
+.vscode
 .env
 node_modules
 package.json
 server.js
+scripts/config.js
