@@ -1,0 +1,139 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    /* Moodie Dark Theme - Warm Cinematic Colors */
+    --background: 27 23% 8%;         /* #1B1813 - Deep warm brown */
+    --foreground: 38 40% 92%;        /* #F4E9D8 - Warm cream text */
+
+    --card: 27 20% 15%;              /* #2B261F - Card background */
+    --card-foreground: 38 40% 92%;   
+
+    --popover: 27 23% 8%;
+    --popover-foreground: 38 40% 92%;
+
+    --primary: 45 85% 47%;           /* #D4A017 - Gold accent */
+    --primary-foreground: 27 23% 8%;
+
+    --secondary: 27 20% 15%;
+    --secondary-foreground: 38 40% 92%;
+
+    --muted: 27 20% 15%;
+    --muted-foreground: 38 20% 65%;  /* #B8A78A - Muted text */
+
+    --accent: 45 85% 47%;            /* Gold */
+    --accent-foreground: 27 23% 8%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 38 40% 92%;
+
+    --border: 27 20% 25%;
+    --input: 27 20% 20%;
+    --ring: 45 85% 47%;
+
+    --radius: 0.75rem;
+
+    /* Gradients */
+    --gradient-overlay: linear-gradient(to top, hsl(27 23% 8%), hsl(27 23% 8% / 0), hsl(27 23% 8%));
+    --gradient-overlay-side: linear-gradient(to right, hsl(27 23% 8%), hsl(27 23% 8% / 0));
+    --gradient-detail: linear-gradient(to top, hsl(27 23% 8%) 0%, hsl(27 23% 8% / 0.5) 30%, hsl(27 23% 8% / 0.5) 70%, hsl(27 23% 8%) 100%);
+    
+    /* Shadows */
+    --shadow-gold: 0 10px 40px -10px hsl(45 85% 47% / 0.3);
+    --shadow-card: 0 4px 20px hsl(27 23% 8% / 0.5);
+    
+    /* Transitions */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-slow: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .light {
+    /* Moodie Light Theme */
+    --background: 45 45% 94%;        /* #F5F0E1 - Warm cream */
+    --foreground: 30 25% 15%;        /* #2F2A1F - Dark brown text */
+
+    --card: 40 35% 88%;              /* #E8E0CC */
+    --card-foreground: 30 25% 15%;
+
+    --popover: 45 45% 94%;
+    --popover-foreground: 30 25% 15%;
+
+    --primary: 45 85% 47%;           /* Same gold accent */
+    --primary-foreground: 45 45% 94%;
+
+    --secondary: 40 35% 88%;
+    --secondary-foreground: 30 25% 15%;
+
+    --muted: 40 35% 88%;
+    --muted-foreground: 30 15% 25%;  /* #444037 */
+
+    --accent: 45 85% 47%;
+    --accent-foreground: 45 45% 94%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 45 45% 94%;
+
+    --border: 40 25% 75%;
+    --input: 40 35% 85%;
+    --ring: 45 85% 47%;
+
+    --gradient-overlay: linear-gradient(to top, hsl(45 45% 94%), hsl(45 45% 94% / 0), hsl(45 45% 94% / 0.9));
+    --gradient-overlay-side: linear-gradient(to right, hsl(45 45% 94%), hsl(45 45% 94% / 0));
+    --gradient-detail: linear-gradient(to top, hsl(45 45% 94%) 0%, hsl(45 45% 94% / 0.5) 30%, hsl(45 45% 94% / 0.5) 70%, hsl(45 45% 94%) 100%);
+    
+    --shadow-gold: 0 10px 40px -10px hsl(45 85% 47% / 0.25);
+    --shadow-card: 0 4px 20px hsl(0 0% 0% / 0.08);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Poppins', sans-serif;
+    transition: background-color 0.5s ease, color 0.5s ease;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  
+  /* Glass morphism effect */
+  .glass {
+    background: hsl(var(--card) / 0.4);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+  
+  /* Smooth hover scale */
+  .hover-scale {
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .hover-scale:hover {
+    transform: scale(1.05);
+  }
+  
+  /* Gradient text */
+  .gradient-text {
+    background: linear-gradient(135deg, hsl(var(--accent)), hsl(var(--accent-foreground)));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}

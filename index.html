@@ -1,131 +1,26 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <title>Moodie</title>
-    <link rel="stylesheet" href="./css/style.css" />
+    <title>Moodie - Discover Movies & TV Shows</title>
+    <meta name="description" content="Discover and explore movies and TV shows based on your mood. Search, filter, and build your perfect watchlist." />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+
+    <meta property="og:title" content="Moodie - Discover Movies & TV Shows" />
+    <meta property="og:description" content="Discover and explore movies and TV shows based on your mood" />
+    <meta property="og:type" content="website" />
+    
+
+    <meta name="twitter:card" content="summary_large_image" />
+    
   </head>
-  <body class="dark">
-    <header>
-      <!-- Navbar -->
-      <nav id="navbar">
-        <div class="containernav nav-container">
-          <a href="./index.html" class="logo">Moodie</a>
 
-          <ul class="nav-links">
-            <li><a href="./index.html?type=movie">Movies</a></li>
-            <li><a href="./index.html?type=tv">Shows</a></li>
-            <li><a href="./list.html">Watchlist</a></li>
-            <li class="dropdown">
-              <a href="./mood.html">Mood</a>
-            </li>
-          </ul>
-
-
-          <div class="st">
-            <div class="search">
-              <form class="seacrch" action="./search.html" method="GET">
-                <input type="text" class="search__input" placeholder="Search movies..." name="q" required>
-                <input type="hidden" name="type" value="movie" />
-                <button type="submit" class="search__button">
-                  <svg class="search__icon" aria-hidden="true" viewBox="0 0 24 24">
-                    <g>
-                      <path d="M21.53 20.47l-3.66-3.66C19.195 15.24 20 13.214 20 11c0-4.97-4.03-9-9-9s-9 4.03-9 9 4.03 9 9 9c2.215 0 4.24-.804 5.808-2.13l3.66 3.66c.147.146.34.22.53.22s.385-.073.53-.22c.295-.293.295-.767.002-1.06zM3.5 11c0-4.135 3.365-7.5 7.5-7.5s7.5 3.365 7.5 7.5-3.365 7.5-7.5 7.5-7.5-3.365-7.5-7.5z"></path>
-                    </g>
-                  </svg>
-                </button>
-              </form>
-            </div>
-
-            <div class="theme-toggle" onclick="toggleTheme()">
-              <span class="icon"><i class="fas fa-moon"></i></span>
-            </div>
-            <div class="hamburger-menu" onclick="toggleMobileMenu()">
-              <span></span>
-              <span></span>
-              <span></span>
-            </div>
-  
-          </div>
-        </div>
-      </nav>
-    </header>
-    <main class="main">
-      <section id="hero">
-        <div class="over">
-          <div class="hero-overlay">
-            <div class="container hero-content">
-              <div class="trending-badge" id="category-badge">> Now Playing</div>
-              <div class="hero-textcontainer" id="hero-textcontainer"></div>
-              
-
-              <div class="hero-actions group">
-                <div class="movieslide">
-                  <a href="./moviedetail.html" class="btn-see-more">See More →</a>
-                  <button class="btn-add">+</button>
-                </div>
-                <div class="mood-input-box">
-                  <input
-                    type="text"
-                    id="mood-input"
-                    placeholder="Type your mood . . . eg. I feel sad today"
-                  />
-                  <button id="mood-submit" aria-label="Submit mood for movie recommendations">
-                    <i class="fas fa-smile"></i>
-                  </button>
-                </div>
-              </div>
-
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Popular Movies -->
-      <section id="popular-movies">
-        <div class="container">
-          <h2>Popular Movies</h2>
-          <div class="carousel-controls">
-            <button class="carousel-btn left" data-target="movie-grid">
-              ←
-            </button>
-            <button class="carousel-btn right" data-target="movie-grid">
-              →
-            </button>
-          </div>
-          <div class="popular movie-grid carousel" id="movie-grid">
-          </div>
-        </div>
-      </section>
-
-      <!-- Popular Actors -->
-      <section id="popular-actors">
-        <div class="container">
-          <h2>Popular Actors</h2>
-          <div class="carousel-controls">
-            <button class="carousel-btn left" data-target="actor-grid">
-              ←
-            </button>
-            <button class="carousel-btn right" data-target="actor-grid">
-              →
-            </button>
-          </div>
-          <div
-            class="popular-actors actor-grid carousel"
-            id="actor-grid"
-          >
-            <!-- Actor Card 1 -->
-
-            <!-- More actor cards... -->
-          </div>
-        </div>
-      </section>
-    </main>
-    <div id="custom-alert" class="custom-alert">Added to Watchlist ✅</div>
-
-    <script src="./scripts/config.js"></script>
-    <script src="./scripts/script.js"></script>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
