@@ -31,3 +31,9 @@ Optionally, you can override at runtime by storing a value in `localStorage` und
 npm run build
 npm run preview
 ```
+
+### Deploying to Vercel
+
+- Leave the default Vercel settings (Framework Preset: Vite, Build Command: `npm run build`, Output Directory: `dist`).
+- Ensure the `VITE_TMDB_API_KEY` environment variable is configured in the project settings.
+- `vercel.json` includes a filesystem fallback so client-side routes like `/search` work after refreshing or sharing URLs.
